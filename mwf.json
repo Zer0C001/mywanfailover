@@ -1,0 +1,15 @@
+{
+ "gateways":[
+	{"default":true ,"ip":"192.168.0.1","dev":"eth0"},
+	{"ip":"10.0.0.1","dev":"eth1"}
+ ],
+ "targets":{
+	"common":["8.8.8.8","8.8.4.4","google.com"],
+	"eth0":["192.168.0.1","10.1.1.1"]
+ },
+ "check_interval":10,
+ "log_int":60,
+ "tolerance":1,
+ "command_after_switch": {"any": "/etc/mywanfailover/scripts/switch_occured.sh","eth0":"/etc/mywanfailover/scripts/eth0-up.sh","other": "/etc/mywanfailover/scripts/not_eth0-up.sh"}
+}
+
