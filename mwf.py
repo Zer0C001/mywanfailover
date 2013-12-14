@@ -5,8 +5,8 @@ import os,sys,signal,json,shlex,subprocess,time,syslog
 from simple_daemon import Daemon
 
 class mywanfailover(Daemon):
-	def __init__(self,conf_file="/etc/mywanfailover/mwf.json",*args,**kwargs):
-		super(mywanfailover,self).__init__(*args,**kwargs)
+	def __init__(self,conf_file="/etc/mywanfailover/mwf.json",pidfile="/var/run/mywanfailover.pid",*args,**kwargs):
+		super(mywanfailover,self).__init__(pidfile=pidfile,*args,**kwargs)
 		syslog.openlog(ident="mywanfailover")
 		self.conf_file=conf_file
 		self.configuration=None
@@ -38,6 +38,7 @@ class mywanfailover(Daemon):
 			syslog.syslog("failed to open config file: "+conf_file)
 			exit(1)
 		configuration=json.load(conf_file_handle)
+		conf_file_handle.close()
 		self.configuration=configuration
 		syslog.syslog(str(configuration))
 
@@ -111,7 +112,7 @@ class mywanfailover(Daemon):
 		subprocess.call(shlex.split("ip route replace default via "+gw["ip"]+" dev "+gw["dev"]))
 		if self.configuration.has_key("command_after_switch"):
 			if self.configuration["command_after_switch"].has_key("any"):
-				subprocess.Popen(shlex.split(self.configuration["command_after_switch"]["any"]))				
+				subprocess.Popen(shlex.split(self.configuration["command_after_switch"]["any"]))
 			if self.configuration["command_after_switch"].has_key(gw["dev"]):
 				subprocess.Popen(shlex.split(self.configuration["command_after_switch"][gw["dev"]]))
 			elif self.configuration["command_after_switch"].has_key("other"):
@@ -142,7 +143,7 @@ class mywanfailover(Daemon):
 				if link_ok:
 						syslog.syslog("default ok")
 						self.switch_to(self.default_gw)
-						syslog.syslog("swithed to default")
+						syslog.syslog("swithed to default:"+str(gw))
 						default_ok=True
 				else:
 					default_ok=False
@@ -158,7 +159,7 @@ class mywanfailover(Daemon):
 			time.sleep(self.configuration["check_interval"])
 	
 
-mwf=mywanfailover(pidfile="/var/run/mywanfailover.pid")
+mwf=mywanfailover()
 if len(sys.argv)==1 or sys.argv[1]=="start":
   mwf.start()
 elif sys.argv[1]=="run":
