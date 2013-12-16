@@ -143,7 +143,7 @@ class mywanfailover(Daemon):
 				if link_ok:
 						syslog.syslog("default ok")
 						self.switch_to(self.default_gw)
-						syslog.syslog("swithed to default:"+str(gw))
+						syslog.syslog("swithed to default:"+str(self.default_gw))
 						default_ok=True
 				else:
 					default_ok=False
