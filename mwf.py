@@ -93,6 +93,10 @@ class mywanfailover(Daemon):
 		dev_null=open(os.devnull,"w")
 		targets=[]
 		targets_failed=[]
+		if self.configuration.has_key("reenter_gw") and self.configuration["reenter_gw"] and gw.has_key("metric"):
+			#syslog.syslog("reentering gw")
+			subprocess.call(shlex.split("ip route replace default via "+gw["ip"]+" dev "+gw["dev"]+" metric "+gw["metric"]),stdout=dev_null,stderr=dev_null)
+			#syslog.syslog("reentered gw")
 		if self.configuration["targets"].has_key(gw["dev"]):
 			targets=self.configuration["targets"][gw["dev"]]+self.configuration["targets"]["common"]
 		else:

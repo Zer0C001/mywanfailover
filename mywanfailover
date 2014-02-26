@@ -21,39 +21,48 @@ DAEMON_USER=root
 # The process ID of the script when it runs is stored here:
 PIDFILE=/var/run/$DAEMON_NAME.pid
  
-. /lib/lsb/init-functions
+#. /lib/lsb/init-functions
  
 do_start () {
-log_daemon_msg "Starting $DAEMON_NAME daemon"
-start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --user $DAEMON_USER --startas $DAEMON
-log_end_msg $?
+#log_daemon_msg "Starting $DAEMON_NAME daemon"
+#start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --user $DAEMON_USER --startas $DAEMON
+#log_end_msg $?
+$DAEMON start
 }
 do_stop () {
-log_daemon_msg "Stopping $DAEMON_NAME daemon"
+#log_daemon_msg "Stopping $DAEMON_NAME daemon"
 $DAEMON stop
-log_end_msg $?
+#log_end_msg $?
 }
 do_restart () {
-log_daemon_msg "Restarting $DAEMON_NAME daemon"
+#log_daemon_msg "Restarting $DAEMON_NAME daemon"
 $DAEMON restart
-log_end_msg $?
+#log_end_msg $?
 }
 do_reload () {
-log_daemon_msg "Reloading $DAEMON_NAME daemon"
-start-stop-daemon  -s HUP --stop --pidfile $PIDFILE
-log_end_msg $?
+#log_daemon_msg "Reloading $DAEMON_NAME daemon"
+#start-stop-daemon  -s HUP --stop --pidfile $PIDFILE
+kill -HUP `cat /var/run/mywanfailover.pid `
+#log_end_msg $?
 }
-
+echo $1
 case "$1" in
  
 start|stop|restart|reload)
 do_${1}
 ;;
- 
- 
-status)
-status_of_proc "$DAEMON_NAME" "$DAEMON" && exit 0 || exit $?
+boot)
+do_start
 ;;
+ 
+#status)
+#status_of_proc "$DAEMON_NAME" "$DAEMON" && exit 0 || exit $?
+#;;
+enabled) 
+name="$(basename "${initscript}")"
+[ -x "$IPKG_INSTROOT/etc/rc.d/S${START}${name##S[0-9][0-9]}" ]
+;;
+
 *)
 echo "Usage: /etc/init.d/$DEAMON_NAME {start|stop|restart|reload|status}"
 exit 1
